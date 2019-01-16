@@ -1,6 +1,9 @@
 package subprocess
 
-import "io"
+import (
+	"io"
+	"os/exec"
+)
 
 // DescriptorOpts contains options for substituting process' i/o descriptors
 //
@@ -12,4 +15,16 @@ type DescriptorOpts struct {
 	Stdout io.Writer
 	// Stderr will be set as Stderr in started process
 	Stderr io.Writer
+}
+
+func (opts *DescriptorOpts) SetDescriptors(cmd *exec.Cmd) {
+	if cmd == nil {
+		return
+	}
+	if opts.Stdout != nil {
+		cmd.Stdout = opts.Stdout
+	}
+	if opts.Stderr != nil {
+		cmd.Stderr = opts.Stderr
+	}
 }

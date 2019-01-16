@@ -2,6 +2,7 @@ package subprocess
 
 import (
 	"context"
+	"io"
 	"os"
 	"os/exec"
 
@@ -55,6 +56,7 @@ func (p *Process) Start(ctx context.Context) error {
 	}
 	p.cmd = exec.CommandContext(ctx, p.name, p.processOpts.CLIArgs...)
 	p.cmd.Env = append(os.Environ(), p.processOpts.AdditionalEnv...)
+	p.descriptorOpts.SetDescriptors(p.cmd)
 
 	if err := p.cmd.Start(); err != nil {
 		return errors.Wrap(err, "cmd.Start")
@@ -63,8 +65,27 @@ func (p *Process) Start(ctx context.Context) error {
 	return nil
 }
 
+// Stdout returns reader of stdout
+func (p *Process) Stdout() io.Reader {
+	if reader, ok := p.descriptorOpts.Stdout.(io.Reader); ok {
+		return reader
+	}
+	return nil
+}
+
+// Stderr returns reader of stderr
+func (p *Process) Stderr() io.Reader {
+	if reader, ok := p.descriptorOpts.Stderr.(io.Reader); ok {
+		return reader
+	}
+	return nil
+}
+
 func (p *Process) Wait() error {
-	return errors.Wrap(p.cmd.Wait(), "cmd.Wait")
+	if err := p.cmd.Wait(); err != nil {
+		errors.Wrap(err, "cmd.Wait")
+	}
+	return nil
 }
 
 // Stop stops underlying process from running

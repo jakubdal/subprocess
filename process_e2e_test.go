@@ -1,6 +1,7 @@
 package subprocess
 
 import (
+	"bytes"
 	"context"
 	"os"
 	"path/filepath"
@@ -40,5 +41,36 @@ func TestTouchFile(t *testing.T) {
 		filepath.Join(testDir, touchedFile),
 	); os.IsNotExist(err) {
 		t.Errorf("File was not created")
+	}
+}
+
+func TestPrintStderrStdout(t *testing.T) {
+	printer, err := NewProcess(
+		context.Background(),
+		"python3",
+		&ProcessOpts{CLIArgs: []string{
+			filepath.Join("e2e_testsuite", "print.py"),
+		}},
+		&DescriptorOpts{Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}},
+	)
+	assertNil(t, err)
+
+	assertNil(t, printer.Start(nil))
+	printer.Wait()
+
+	stdoutContent := printer.Stdout().(*bytes.Buffer).String()
+	if stdoutContent != "Hello, stdout!" {
+		t.Errorf("invalid stdout content: %v", stdoutContent)
+	}
+
+	stderrContent := printer.Stderr().(*bytes.Buffer).String()
+	if stderrContent != "Hello, stderr!" {
+		t.Errorf("invalid stderr content: %v", stderrContent)
+	}
+}
+
+func assertNil(t *testing.T, err error) {
+	if err != nil {
+		t.Fatalf("error: %v", err)
 	}
 }

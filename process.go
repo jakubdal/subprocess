@@ -67,7 +67,7 @@ func (p *Process) Start(ctx context.Context) error {
 
 // Stdout returns reader of stdout
 func (p *Process) Stdout() io.Reader {
-	if reader, ok := p.descriptorOpts.Stdout.(io.Reader); ok {
+	if reader, ok := p.cmd.Stdout.(io.Reader); ok {
 		return reader
 	}
 	return nil
@@ -75,7 +75,7 @@ func (p *Process) Stdout() io.Reader {
 
 // Stderr returns reader of stderr
 func (p *Process) Stderr() io.Reader {
-	if reader, ok := p.descriptorOpts.Stderr.(io.Reader); ok {
+	if reader, ok := p.cmd.Stderr.(io.Reader); ok {
 		return reader
 	}
 	return nil

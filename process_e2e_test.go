@@ -114,9 +114,7 @@ func TestSignal(t *testing.T) {
 	time.Sleep(time.Second)
 	assertNil(t, signaler.Signal(syscall.SIGINT))
 
-	if err := signaler.Wait(); err != nil {
-		t.Fatalf("signaler.Wait: %v", err)
-	}
+	assertNil(t, signaler.Wait())
 
 	stdout := signaler.Stdout().(*bytes.Buffer).String()
 	if stdout != "SIGINT called" {

@@ -83,7 +83,7 @@ func (p *Process) Stderr() io.Reader {
 
 func (p *Process) Wait() error {
 	if err := p.cmd.Wait(); err != nil {
-		errors.Wrap(err, "cmd.Wait")
+		return errors.Wrap(err, "cmd.Wait")
 	}
 	return nil
 }
